@@ -1,46 +1,67 @@
 const axios = require('axios');
 const { USER_AGENT } = require('../utils/constants');
 
+// Axios instance with default configuration for better performance
+const yahooAxios = axios.create({
+  timeout: 5000, // 5 second timeout
+  headers: {
+    'User-Agent': USER_AGENT,
+    'Accept': 'application/json'
+  }
+});
+
 /**
- * Helper service to get stock data from Yahoo Finance
+ * Optimized helper service to get stock data from Yahoo Finance
  */
 const yahooFinanceService = {
   /**
-   * Get stock data from Yahoo Finance
+   * Get stock data from Yahoo Finance with better error handling
    */
   async getStockData(symbol) {
     try {
-      // Append ".NS" for NSE stocks in Yahoo Finance
-      const yahooSymbol = symbol.includes('.') ? symbol : `${symbol}.NS`;
+      // Normalize and prepare symbol for Yahoo Finance format
+      const normalizedSymbol = symbol.trim().toUpperCase();
+      const yahooSymbol = normalizedSymbol.includes('.') ? normalizedSymbol : `${normalizedSymbol}.NS`;
       
-      const response = await axios.get(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?interval=1d`,
-        {
-          headers: {
-            'User-Agent': USER_AGENT
-          }
-        }
+      const response = await yahooAxios.get(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?interval=1d&range=1d`
       );
       
-      if (!response.data || !response.data.chart || !response.data.chart.result || 
-          !response.data.chart.result[0] || !response.data.chart.result[0].meta) {
-        throw new Error('Invalid response structure from Yahoo Finance');
-      }
+      // Guard clauses for more efficient error handling
+      if (!response.data) return null;
       
-      const data = response.data.chart.result[0];
-      const quote = data.indicators.quote[0];
+      const result = response.data;
+      if (!result.chart?.result?.[0]?.meta) return null;
+      
+      const data = result.chart.result[0];
       const meta = data.meta;
+      
+      // Check if we have valid quote data
+      if (!data.indicators?.quote?.[0]) return null;
+      
+      const quote = data.indicators.quote[0];
       const timestamp = data.timestamp;
       
-      // Get the latest price data
-      const latestIndex = timestamp.length - 1;
+      // Get the latest price data using more reliable approach
+      const latestIndex = timestamp ? timestamp.length - 1 : 0;
+      
+      // More efficient data extraction with better null handling
+      const previousClose = meta.previousClose || meta.chartPreviousClose || 0;
+      const currentPrice = meta.regularMarketPrice || 
+                          (quote.close?.[latestIndex] || 
+                          quote.open?.[latestIndex] || 0);
+      
+      const change = previousClose ? currentPrice - previousClose : 0;
+      const percentChange = previousClose && previousClose !== 0 
+        ? ((currentPrice / previousClose - 1) * 100)
+        : 0;
       
       return {
-        symbol: symbol,
-        companyName: meta.symbol.replace('.NS', ''),
-        price: meta.regularMarketPrice || null,
-        change: meta.regularMarketPrice - meta.previousClose || null,
-        percentChange: ((meta.regularMarketPrice / meta.previousClose - 1) * 100) || null,
+        symbol: normalizedSymbol,
+        companyName: meta.symbol.replace('.NS', '') || normalizedSymbol,
+        price: currentPrice || null,
+        change: change || null,
+        percentChange: percentChange || null,
         high: quote.high?.[latestIndex] || null,
         low: quote.low?.[latestIndex] || null,
         open: quote.open?.[latestIndex] || null,

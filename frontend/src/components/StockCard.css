@@ -1,0 +1,68 @@
+.stock-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  max-width: 500px;
+  width: 100%;
+}
+
+.stock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stock-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.symbol {
+  background-color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.change {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.positive {
+  color: #22c55e;
+}
+
+.negative {
+  color: #ef4444;
+}
+
+.range {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.update-time {
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  color: #888;
+}
+
+.error-message {
+  color: #ef4444;
+  padding: 1rem;
+  background-color: #fee2e2;
+  border-radius: 4px;
+  margin-top: 1rem;
+}

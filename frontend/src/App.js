@@ -9,8 +9,8 @@ function App() {
 
   const fetchStockData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/stock/${symbol}`);
-      setStockData(response.data);
+      const { data } = await axios.get(`http://localhost:3000/api/stock/${symbol}`);
+      setStockData(data);
       setError(null);
     } catch (err) {
       setError('Failed to fetch stock data');
@@ -32,11 +32,11 @@ function App() {
         {error && <p className="error">{error}</p>}
         {stockData && (
           <div className="stock-data">
-            <h2>{stockData.companyName} ({stockData.symbol})</h2>
-            <p>Price: {stockData.price}</p>
-            <p>Change: {stockData.change}</p>
-            <p>Percent Change: {stockData.percentChange}%</p>
-            <p>Last Updated: {new Date(stockData.lastUpdated).toLocaleString()}</p>
+            <h2>{stockData?.companyName} ({stockData?.symbol})</h2>
+            <p>Price: {stockData?.price}</p>
+            <p>Change: {stockData?.change}</p>
+            <p>Percent Change: {stockData?.percentChange}%</p>
+            <p>Last Updated: {new Date(stockData?.lastUpdated).toLocaleString()}</p>
           </div>
         )}
       </header>
