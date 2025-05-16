@@ -27,7 +27,7 @@ A free API service for getting data from Indian stock markets.
 
 1. Clone the repository:
 ```
-git clone <your-repo-url>
+git clone https://github.com/IshanAsati/sotckapi.git
 cd sotckapi
 ```
 
